@@ -14,7 +14,7 @@ extern "C" {
 
 #define I2C_ACK        0
 #define I2C_NACK       1
-#define I2C_STAT       0
+#define I2C_START      0
 #define I2C_RESTART    1
 
 void i2c_begin( void);
