@@ -5,6 +5,8 @@
  * Created on March 6, 2016, 6:12 PM
  */
 
+#define _XTAL_FREQ 8000000
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -16,6 +18,7 @@
 
 // 'C' source line config statements
 
+#include <pic.h>
 #include <xc.h>
 
 // #pragma config statements should precede project file includes.
@@ -40,10 +43,24 @@
 #pragma config LVP = ON         // Low-Voltage Programming Enable (Low-voltage programming enabled)
 
 
-
+#include "i2c.h"
+#include "lcd.h"
 
 int main(int argc, char** argv) {
 
+    i2c_begin();
+    
+    lcd_begin( 8, 2 );
+    const char str1[] = "Hello";
+    const char str2[] = "World";
+    
+    lcd_setCursor(0,0);
+    lcd_printStr( str1, sizeof( str1 ) );
+    lcd_setCursor(0,1);
+    lcd_printStr( str2, sizeof( str2 ) );
+    
+    while(1);
+    
     return (EXIT_SUCCESS);
 }
 

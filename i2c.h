@@ -12,22 +12,24 @@
 extern "C" {
 #endif
 
-#define I2C_ACK        0
-#define I2C_NACK       1
-#define I2C_START      0
-#define I2C_RESTART    1
+#include <stdbool.h>
 
-void i2c_begin( void);
+#define I2C_ACK        false
+#define I2C_NACK       true
+#define I2C_START      false
+#define I2C_RESTART    true
+
+void i2c_begin( void );
 
 void i2c_wait_idle( void );
 
 void i2c_write( const unsigned char data );
-unsigned char i2c_read( const unsigned char nack );
+unsigned char i2c_read( const bool nack );
 
-void i2c_begin_transmission( const unsigned char address, const unsigned char restart );
+void i2c_begin_transmission( const unsigned char address, const bool restart );
 void i2c_end_transmission( void );
 
-void i2c_begin_request( const unsigned char address, const unsigned char restart );
+void i2c_begin_request( const unsigned char address, const bool restart );
 void i2c_end_request( void );
 
 

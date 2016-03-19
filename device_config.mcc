@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration device="PIC12F1822" mcc_version="v2.25.2">
+    <managers>
+        <manager generated="false" name="Pin Manager" reloadPin="manual">
+            <setting name="SSSEL" option="RA3"/>
+            <setting name="TXCKSEL" option="RA0"/>
+            <setting name="SDOSEL" option="RA0"/>
+            <setting name="T1GSEL" option="RA4"/>
+            <setting name="RXDTSEL" option="RA1"/>
+            <setting name="CCP1SEL" option="RA2"/>
+            <setting name="P1BSEL" option="RA0"/>
+            <setting name="package" option="PDIP8"/>
+            <setting name="sorting" option="true"/>
+        </manager>
+        <manager generated="false" name="System" reloadPin="manual">
+            <initializer comment="" name="Initialize">
+                <setting name="SCS" option="FOSC" register="OSCCON"/>
+                <setting name="SPLLEN" option="disabled" register="OSCCON"/>
+                <setting name="IRCF" option="500KHz_MF" register="OSCCON"/>
+                <setting name="LFIOFR" option="disabled" register="OSCSTAT"/>
+                <setting name="HFIOFL" option="not2percent_acc" register="OSCSTAT"/>
+                <setting name="OSTS" option="intosc" register="OSCSTAT"/>
+                <setting name="PLLR" option="disabled" register="OSCSTAT"/>
+                <setting name="HFIOFS" option="not0.5percent_acc" register="OSCSTAT"/>
+                <setting name="HFIOFR" option="disabled" register="OSCSTAT"/>
+                <setting name="MFIOFR" option="disabled" register="OSCSTAT"/>
+                <setting name="T1OSCR" option="disabled" register="OSCSTAT"/>
+                <setting name="TUN" option="0x0" register="OSCTUNE"/>
+                <additionalSetting name="pllMultiplier" option=""/>
+                <additionalSetting name="extclk" option="1.0 MHz"/>
+            </initializer>
+            <setting name="CLKOUTEN" option="OFF"/>
+            <setting name="FCMEN" option="ON"/>
+            <setting name="MCLRE" option="ON"/>
+            <setting name="WDTE" option="OFF"/>
+            <setting name="CPD" option="OFF"/>
+            <setting name="FOSC" option="INTOSC"/>
+            <setting name="BOREN" option="ON"/>
+            <setting name="IESO" option="ON"/>
+            <setting name="PWRTE" option="OFF"/>
+            <setting name="CP" option="OFF"/>
+            <setting name="PLLEN" option="ON"/>
+            <setting name="LVP" option="OFF"/>
+            <setting name="WRT" option="OFF"/>
+            <setting name="STVREN" option="ON"/>
+            <setting name="BORV" option="LO"/>
+            <setting name="generateConfigBits" option="true"/>
+        </manager>
+    </managers>
+</configuration>
