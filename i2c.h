@@ -32,7 +32,6 @@ void i2c_end_transmission( void );
 void i2c_begin_request( const unsigned char address, const bool restart );
 void i2c_end_request( void );
 
-
 #ifdef	__cplusplus
 }
 #endif

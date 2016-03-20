@@ -154,10 +154,9 @@ void lcd_noDisplay( void ) {
   lcd_send_command( _lcd_display );
 }
 
-
 void lcd_print( const int data, const int base ) {
   char buf[ 10 ] = "*********";
-  itoa( data, buf, base );
+  itoa( buf, data, base );
   for( int i = 0; i < sizeof( buf ); i++ ) {
     lcd_write( buf[ i ] );
   }
@@ -171,8 +170,7 @@ void lcd_printStr( const char *str, const int length ) {
 
 
 void lcd_setContrast( const unsigned int contrast ) {
-  unsigned char ct = contrast;
-  ct &= LCD_CONTRAST_MAX;
+  unsigned char ct = (unsigned char)contrast & LCD_CONTRAST_MAX;
   lcd_send_command( LCD_EXT_CONTRAST | ( ct & 0x0F ) );
   _lcd_power |= ( ct >> 4 );
   lcd_send_command( _lcd_power );

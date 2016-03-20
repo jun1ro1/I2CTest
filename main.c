@@ -54,6 +54,7 @@ int main(int argc, char** argv) {
     const char str1[] = "Hello";
     const char str2[] = "World";
     
+    lcd_home();
     lcd_setCursor(0,0);
     lcd_printStr( str1, sizeof( str1 ) );
     lcd_setCursor(0,1);
