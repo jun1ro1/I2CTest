@@ -12,8 +12,7 @@
 extern "C" {
 #endif
 
-#define _XTAL_FREQ 8000000
-
+#include "define.h"
   // I2C address
 #define LCD_I2C_ADDRESS                 0x3E
 
@@ -74,7 +73,7 @@ extern "C" {
   void lcd_display( void );
   void lcd_noDisplay( void );
 
-  void lcd_write( const unsigned char ch );
+  void lcd_write( const char ch );
   void lcd_print( const int data, const int base );
   void lcd_printStr( const char *str, const int length );
 

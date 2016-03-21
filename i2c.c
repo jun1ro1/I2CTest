@@ -6,8 +6,8 @@ static unsigned char _i2c_initialized = 0;
 
 void i2c_begin(void) {
     if (!_i2c_initialized) {
-        LATA   |=  0x06; // RA1(SCL), RA2(SDA) : default higth
-        TRISA  |=  0x06; // RA1(SCL), RA2(SDA) : input
+        LATA |= 0x06; // RA1(SCL), RA2(SDA) : default higth
+        TRISA |= 0x06; // RA1(SCL), RA2(SDA) : input
         ANSELA &= ~0x06; // RA1(SCL), RA2(SDA) : digital I/O
 
         SSP1STAT = 0; // clear SSP1STAT
@@ -43,7 +43,7 @@ unsigned char i2c_read(const bool nack) {
 
 void i2c_begin_transmission(const unsigned char address, const bool restart) {
     i2c_wait_idle();
-    if ( restart ) {
+    if (restart) {
         SSP1CON2bits.RSEN = 1; // send restart condition
         while (SSP1CON2bits.RSEN); // wait to send restart condition
     } else {
@@ -60,14 +60,19 @@ void i2c_end_transmission(void) {
 
 void i2c_begin_request(const unsigned char address, const bool restart) {
     i2c_wait_idle();
-    if ( restart ) {
+    if (restart) {
         SSP1CON2bits.RSEN = 1; // send restart condition
         while (SSP1CON2bits.RSEN); // wait to send restart condition
     } else {
         SSP1CON2bits.SEN = 1; // send start condition
         while (SSP1CON2bits.SEN); // wait to send start condition
     }
+
+// #pragma warning push
+#pragma warning disable 752
     i2c_write(address << 1 | 0x01); // read mode
+#pragma warning enable  752
+// #pragma warning pop
 }
 
 void i2c_end_request(void) {

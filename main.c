@@ -5,8 +5,7 @@
  * Created on March 6, 2016, 6:12 PM
  */
 
-#define _XTAL_FREQ 8000000
-
+#include "define.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -45,23 +44,33 @@
 
 #include "i2c.h"
 #include "lcd.h"
+#include "ADXL345.h"
 
 int main(int argc, char** argv) {
 
     i2c_begin();
-    
-    lcd_begin( 8, 2 );
+    lcd_begin(8, 2);
+    ADXL345_begin();
+
     const char str1[] = "Hello";
     const char str2[] = "World";
-    
+
     lcd_home();
-    lcd_setCursor(0,0);
-    lcd_printStr( str1, sizeof( str1 ) );
-    lcd_setCursor(0,1);
-    lcd_printStr( str2, sizeof( str2 ) );
+    lcd_setCursor(0, 0);
+    lcd_printStr(str1, sizeof ( str1));
+    lcd_setCursor(0, 1);
+    lcd_printStr(str2, sizeof ( str2));
+
+    __delay_ms(500);
     
-    while(1);
-    
+    while (1) {
+        lcd_clear();
+        lcd_home();
+        int accel = ADXL345_getZ();
+        lcd_print(accel, 10);
+        __delay_ms(500);
+    }
+
     return (EXIT_SUCCESS);
 }
 
