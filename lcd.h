@@ -13,7 +13,8 @@ extern "C" {
 #endif
 
 #include "define.h"
-  // I2C address
+#include <stdint.h>    
+// I2C address
 #define LCD_I2C_ADDRESS                 0x3E
 
 #define LCD_COLS_MIN                       8
@@ -60,7 +61,7 @@ extern "C" {
 #define LCD_EXT_CONTRAST                0x70
 
   void lcd_begin( const int cols, const int rows );
-  void lcd_setContrast( const unsigned int contrast );
+  void lcd_setContrast( const uint8_t contrast );
 
   void lcd_clear( void );
   void lcd_home( void );

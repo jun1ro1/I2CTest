@@ -10,14 +10,15 @@ static int _lcd_cols = 0;
 static int _lcd_rows = 0;
 
 // register save
-static unsigned char _lcd_entrymode = 0;
-static unsigned char _lcd_display = 0;
-static unsigned char _lcd_function = 0;
-static unsigned char _lcd_power = 0;
+static uint8_t _lcd_entrymode = 0;
+static uint8_t _lcd_display = 0;
+static uint8_t _lcd_function = 0;
+static uint8_t _lcd_power = 0;
 
 // internal functions
 
-void lcd_send_command(const unsigned char command) {
+
+void lcd_send_command(const uint8_t command) {
     i2c_begin_transmission(LCD_I2C_ADDRESS, I2C_START);
     i2c_write(LCD_COMMAND);
     i2c_write(command);
@@ -99,15 +100,9 @@ void lcd_home(void) {
 }
 
 void lcd_setCursor(const int col, const int row) {
-    int cl = col;
-    cl = (cl < 0) ? 0 : cl;
-    cl = (cl >= _lcd_cols) ? _lcd_cols - 1 : cl;
-
-    int rw = row;
-    rw = (rw < 0) ? 0 : rw;
-    rw = (rw >= _lcd_rows) ? _lcd_rows - 1 : rw;
-
-    unsigned char addr = cl + 0x40 * (rw - 1);
+    int cl = col < 0 ? 0 : (col >= _lcd_cols ? _lcd_cols - 1 : col);
+    int rw = row < 0 ? 0 : (row >= _lcd_rows ? _lcd_rows - 1 : row);   
+    uint8_t addr = cl + 0x40 * (rw - 1);
     lcd_send_command(LCD_SETDDRAMADDRESS | (addr & 0x7F));
 }
 
@@ -163,8 +158,8 @@ void lcd_printStr(const char *str, const int length) {
     }
 }
 
-void lcd_setContrast(const unsigned int contrast) {
-    unsigned char ct = (unsigned char) contrast & LCD_CONTRAST_MAX;
+void lcd_setContrast(const uint8_t contrast) {
+    uint8_t ct = contrast & LCD_CONTRAST_MAX;
     lcd_send_command(LCD_EXT_CONTRAST | (ct & 0x0F));
     _lcd_power |= (ct >> 4);
     lcd_send_command(_lcd_power);

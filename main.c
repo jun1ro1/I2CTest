@@ -8,6 +8,7 @@
 #include "define.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 /*
  * 
@@ -29,7 +30,7 @@
 #pragma config MCLRE = ON       // MCLR Pin Function Select (MCLR/VPP pin function is MCLR)
 #pragma config CP = OFF         // Flash Program Memory Code Protection (Program memory code protection is disabled)
 #pragma config CPD = OFF        // Data Memory Code Protection (Data memory code protection is disabled)
-#pragma config BOREN = ON       // Brown-out Reset Enable (Brown-out Reset enabled)
+#pragma config BOREN = OFF       // Brown-out Reset Enable (Brown-out Reset enabled)
 #pragma config CLKOUTEN = OFF   // Clock Out Enable (CLKOUT function is disabled. I/O or oscillator function on the CLKOUT pin)
 #pragma config IESO = ON        // Internal/External Switchover (Internal/External Switchover mode is enabled)
 #pragma config FCMEN = ON       // Fail-Safe Clock Monitor Enable (Fail-Safe Clock Monitor is enabled)
@@ -46,31 +47,56 @@
 #include "lcd.h"
 #include "ADXL345.h"
 
-int main(int argc, char** argv) {
+void led(const int count) {
 
+    for (int i = 0; i < count; i++) {
+        RA4 = 1; // LED on
+        __delay_ms(500);
+        RA4 = 0; // LED off
+        __delay_ms(500);
+    }
+    __delay_ms(500);
+}
+
+int main(int argc, char** argv) {
+    OSCCON = 0b01110010; // clock 8MHz internal clock
+    ANSELA = 0; // all registers are digital
+    TRISA  = 0; // all registers are output
+    
+    led(1);   
     i2c_begin();
+    
+    led(2);
     lcd_begin(8, 2);
+    
+    led(3);
+    
     ADXL345_begin();
+    led(4);
 
     const char str1[] = "Hello";
     const char str2[] = "World";
 
     lcd_home();
     lcd_setCursor(0, 0);
-    lcd_printStr(str1, sizeof ( str1));
+    lcd_printStr(str1, sizeof (str1));
     lcd_setCursor(0, 1);
-    lcd_printStr(str2, sizeof ( str2));
+    lcd_printStr(str2, sizeof (str2));
 
     __delay_ms(500);
-    
+
     while (1) {
         lcd_clear();
         lcd_home();
+
+        const char label[] = "Z-Axis";
+        lcd_printStr(label, sizeof (label));
         int accel = ADXL345_getZ();
+        lcd_setCursor(0, 1);
         lcd_print(accel, 10);
+
         __delay_ms(500);
     }
 
     return (EXIT_SUCCESS);
 }
-

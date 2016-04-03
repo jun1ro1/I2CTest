@@ -2,12 +2,14 @@
 #include <XC.h>
 #include "i2c.h"
 
-static unsigned char _i2c_initialized = 0;
+static uint8_t _i2c_initialized = 0;
+
+extern void led(const int);
 
 void i2c_begin(void) {
     if (!_i2c_initialized) {
-        LATA |= 0x06; // RA1(SCL), RA2(SDA) : default higth
-        TRISA |= 0x06; // RA1(SCL), RA2(SDA) : input
+        LATA   |=  0x06; // RA1(SCL), RA2(SDA) : default higth
+        TRISA  |=  0x06; // RA1(SCL), RA2(SDA) : input
         ANSELA &= ~0x06; // RA1(SCL), RA2(SDA) : digital I/O
 
         SSP1STAT = 0; // clear SSP1STAT
@@ -23,17 +25,20 @@ void i2c_wait_idle(void) {
     while ((SSP1CON2 & 0x1F) || (SSP1STATbits.R_nW));
 }
 
-void i2c_write(const unsigned char data) {
+void i2c_write(const uint8_t data) {
     SSP1BUF = data;
     while (SSP1STATbits.BF); // wait until Buffer Full
+    led(1);
     while (SSP1CON2bits.ACKSTAT); // wait for ACK received
+    led(2);
     i2c_wait_idle();
+    led(3);
 }
 
-unsigned char i2c_read(const bool nack) {
+uint8_t i2c_read(const bool nack) {
     SSP1CON2bits.RCEN = 1; // Receive Eanble
     while (!SSP1STATbits.BF); // wait for SSP1BUF full
-    unsigned char data = SSP1BUF;
+    uint8_t data = SSP1BUF;
     SSP1CON2bits.ACKDT = (nack) ? 1 : 0; // send NAK or ACK
     SSP1CON2bits.ACKEN = 1; // send ACK
     SSP1CON1bits.SSPOV = 0; // clear Receive Overflow
@@ -41,7 +46,7 @@ unsigned char i2c_read(const bool nack) {
     return data;
 }
 
-void i2c_begin_transmission(const unsigned char address, const bool restart) {
+void i2c_begin_transmission(const uint8_t address, const bool restart) {
     i2c_wait_idle();
     if (restart) {
         SSP1CON2bits.RSEN = 1; // send restart condition
@@ -58,7 +63,7 @@ void i2c_end_transmission(void) {
     while (SSP1CON2bits.PEN); // wait to send start condition
 }
 
-void i2c_begin_request(const unsigned char address, const bool restart) {
+void i2c_begin_request(const uint8_t address, const bool restart) {
     i2c_wait_idle();
     if (restart) {
         SSP1CON2bits.RSEN = 1; // send restart condition

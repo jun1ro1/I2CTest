@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #define I2C_ACK        false
 #define I2C_NACK       true
@@ -23,13 +24,13 @@ void i2c_begin( void );
 
 void i2c_wait_idle( void );
 
-void i2c_write( const unsigned char data );
-unsigned char i2c_read( const bool nack );
+void i2c_write( const uint8_t data );
+uint8_t i2c_read( const bool nack );
 
-void i2c_begin_transmission( const unsigned char address, const bool restart );
+void i2c_begin_transmission( const uint8_t address, const bool restart );
 void i2c_end_transmission( void );
 
-void i2c_begin_request( const unsigned char address, const bool restart );
+void i2c_begin_request( const uint8_t address, const bool restart );
 void i2c_end_request( void );
 
 #ifdef	__cplusplus
