@@ -2,6 +2,8 @@
 #include <XC.h>
 #include "i2c.h"
 
+// #define DEBUG 1
+
 static uint8_t _i2c_initialized = 0;
 
 extern void led(const int);
@@ -22,22 +24,23 @@ void i2c_begin(void) {
 
 void i2c_wait_idle(void) {
     // SSP1CON2.ACKEN RCEN PEN RSEN SEN
+#ifndef DEBUG    
     while ((SSP1CON2 & 0x1F) || (SSP1STATbits.R_nW));
+#endif
 }
 
 void i2c_write(const uint8_t data) {
     SSP1BUF = data;
     while (SSP1STATbits.BF); // wait until Buffer Full
-    led(1);
     while (SSP1CON2bits.ACKSTAT); // wait for ACK received
-    led(2);
     i2c_wait_idle();
-    led(3);
 }
 
 uint8_t i2c_read(const bool nack) {
     SSP1CON2bits.RCEN = 1; // Receive Eanble
+#ifndef DEBUG
     while (!SSP1STATbits.BF); // wait for SSP1BUF full
+#endif
     uint8_t data = SSP1BUF;
     SSP1CON2bits.ACKDT = (nack) ? 1 : 0; // send NAK or ACK
     SSP1CON2bits.ACKEN = 1; // send ACK
@@ -50,27 +53,37 @@ void i2c_begin_transmission(const uint8_t address, const bool restart) {
     i2c_wait_idle();
     if (restart) {
         SSP1CON2bits.RSEN = 1; // send restart condition
+#ifndef DEBUG
         while (SSP1CON2bits.RSEN); // wait to send restart condition
+#endif        
     } else {
-        SSP1CON2bits.SEN = 1; // send start condition
+        SSP1CON2bits.SEN = 1; // send start 
+#ifndef DEBUG        
         while (SSP1CON2bits.SEN); // wait to send start condition
+#endif        
     }
     i2c_write(address << 1);
 }
 
 void i2c_end_transmission(void) {
     SSP1CON2bits.PEN = 1; // send stop condition
+#ifndef DEBUG
     while (SSP1CON2bits.PEN); // wait to send start condition
+#endif
 }
 
 void i2c_begin_request(const uint8_t address, const bool restart) {
     i2c_wait_idle();
     if (restart) {
         SSP1CON2bits.RSEN = 1; // send restart condition
+#ifndef DEBUG        
         while (SSP1CON2bits.RSEN); // wait to send restart condition
+#endif
     } else {
         SSP1CON2bits.SEN = 1; // send start condition
+#ifndef DEBUG
         while (SSP1CON2bits.SEN); // wait to send start condition
+#endif
     }
 
 // #pragma warning push
@@ -82,5 +95,7 @@ void i2c_begin_request(const uint8_t address, const bool restart) {
 
 void i2c_end_request(void) {
     SSP1CON2bits.PEN = 1; // send stop condition
+#ifndef DEBUG
     while (SSP1CON2bits.PEN); // wait to send start condition
+#endif
 }

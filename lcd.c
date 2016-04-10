@@ -11,9 +11,9 @@ static int _lcd_rows = 0;
 
 // register save
 static uint8_t _lcd_entrymode = 0;
-static uint8_t _lcd_display = 0;
-static uint8_t _lcd_function = 0;
-static uint8_t _lcd_power = 0;
+static uint8_t _lcd_display   = 0;
+static uint8_t _lcd_function  = 0;
+static uint8_t _lcd_power     = 0;
 
 // internal functions
 
@@ -47,46 +47,29 @@ void lcd_begin(const int cols, const int rows) {
 
     // clear register save
     _lcd_entrymode = 0;
-    _lcd_display = 0;
-    _lcd_function = 0;
-    _lcd_power = 0;
+    _lcd_display   = LCD_DISPLAY;
+    _lcd_function  = LCD_FUNCTION;
+    _lcd_power     = LCD_EXT_POWER;
 
-    _lcd_function |= (LCD_FUNCTION | LCD_FUNCTION_8BITBUS | LCD_FUNCTION_2LINE);
+    _lcd_function |= (LCD_FUNCTION_8BITBUS | LCD_FUNCTION_2LINE);
     lcd_send_command(_lcd_function); // 0x38
 
     lcd_instruction_extension(); // 0x39
+
     lcd_send_command(LCD_EXT_INTERNALOSC | LCD_EXT_INTERNALOSC_ADJUST); // 0x14
 
     // contrast = 0x02 << 4 | 0x00 = 0x20
+    _lcd_power |= (LCD_EXT_POWER_BOOSTER | 0x02);
     lcd_send_command(LCD_EXT_CONTRAST | 0x00); // 0x70
-    _lcd_power |= (LCD_EXT_POWER | LCD_EXT_POWER_BOOSTER | 0x02);
-    lcd_send_command(_lcd_power); // 0x5E
+    lcd_send_command(_lcd_power); // 0x56
 
-    lcd_send_command(LCD_EXT_FOLLOWER | LCD_EXT_FOLLOWER_ON | LCD_EXT_FOLLOWER_RAB2); // 0x6A
+    lcd_send_command(LCD_EXT_FOLLOWER | LCD_EXT_FOLLOWER_ON | LCD_EXT_FOLLOWER_RAB2); // 0x6C
     __delay_ms(200);
 
-    lcd_instruction_normal();
+    lcd_instruction_normal(); // 0x38
 
-    lcd_clear();
-
-    /* lcd_send_command( 0x38 );  // Function Set */
-    /*                            //  0 0 1 .  . . . .  Function Set */
-    /*                            //  . . .DL  . . . .  1: 8-bit Bus Mode */
-    /*                            //  . . . .  N . . .  1: 2-line Display Mode */
-    /*                            //  . . . .  .DH . .  0: Double Height Font */
-    /*                            //  . . . .  . . 0 . */
-    /*                            //  . . . .  . . .IS  0 Normal Instruction Select */
-
-    /* lcd_send_command( 0x39 );  // function set */
-    /* lcd_send_command( 0x14 );  // internal OSC frequency */
-    /* lcd_send_command( 0x70 );  // contrast set */
-    /* lcd_send_command( 0x56 );  // Power/ICON/Contrast control */
-    /* lcd_send_command( 0x6C );  // Follwer control */
-    /* __delay_ms( 200 ); */
-
-    /* lcd_send_command( 0x38 );  // function set */
-    /* lcd_send_command( 0x0C );  // display ON/OFF control */
-    /* lcd_clear(); */
+    lcd_display(); // 0x0C
+    lcd_clear();   // 0x01
 }
 
 void lcd_clear(void) {
@@ -102,7 +85,7 @@ void lcd_home(void) {
 void lcd_setCursor(const int col, const int row) {
     int cl = col < 0 ? 0 : (col >= _lcd_cols ? _lcd_cols - 1 : col);
     int rw = row < 0 ? 0 : (row >= _lcd_rows ? _lcd_rows - 1 : row);   
-    uint8_t addr = cl + 0x40 * (rw - 1);
+    uint8_t addr = cl + 0x40 * rw;
     lcd_send_command(LCD_SETDDRAMADDRESS | (addr & 0x7F));
 }
 
@@ -152,15 +135,20 @@ void lcd_print(const int data, const int base) {
     }
 }
 
-void lcd_printStr(const char *str, const int length) {
-    for (int i = 0; i < length; i++) {
-        lcd_write(str[ i ]);
+void lcd_printStr(const char *str) {
+    int i = 0;
+    char ch;
+    while( (ch = str[i]) != '\0') {
+        lcd_write(ch);
+        ++i;
     }
 }
 
 void lcd_setContrast(const uint8_t contrast) {
     uint8_t ct = contrast & LCD_CONTRAST_MAX;
+    lcd_instruction_extension();
     lcd_send_command(LCD_EXT_CONTRAST | (ct & 0x0F));
     _lcd_power |= (ct >> 4);
     lcd_send_command(_lcd_power);
+    lcd_instruction_normal();
 }

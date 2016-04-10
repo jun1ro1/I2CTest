@@ -76,7 +76,7 @@ extern "C" {
 
   void lcd_write( const char ch );
   void lcd_print( const int data, const int base );
-  void lcd_printStr( const char *str, const int length );
+  void lcd_printStr( const char *str );
 
 #ifdef	__cplusplus
 }
