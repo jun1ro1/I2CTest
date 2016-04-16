@@ -10,7 +10,7 @@ extern void led(const int);
 
 void i2c_begin(void) {
     if (!_i2c_initialized) {
-        LATA   |=  0x06; // RA1(SCL), RA2(SDA) : default higth
+ //       LATA   |=  0x06; // RA1(SCL), RA2(SDA) : default higth
         TRISA  |=  0x06; // RA1(SCL), RA2(SDA) : input
         ANSELA &= ~0x06; // RA1(SCL), RA2(SDA) : digital I/O
 

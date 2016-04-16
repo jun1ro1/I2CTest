@@ -51,11 +51,11 @@ void led(const int count) {
 
     for (int i = 0; i < count; i++) {
         RA4 = 1; // LED on
-        __delay_ms(300);
+        __delay_ms(200);
         RA4 = 0; // LED off
-        __delay_ms(300);
+        __delay_ms(200);
     }
-    __delay_ms(300);
+    __delay_ms(200);
 }
 
 int main(int argc, char** argv) {
@@ -67,23 +67,23 @@ int main(int argc, char** argv) {
     i2c_begin();
     
     led(2);
-    lcd_begin(8, 2);
-    
+    lcd_begin(8, 2);    
+
     led(3);
-    
-  //  ADXL345_begin();
-    led(1);
+   //    ADXL345_begin();
+       
+ //   led(1);
 
     const char str1[] = "Hello";
     const char str2[] = "World";
 
 //    lcd_setContrast( 70 );
-//    lcd_display();
+//      lcd_display();
     
     lcd_home();
     lcd_setCursor(0, 0);
     lcd_printStr(str1);
-    lcd_setCursor(0, 1);
+    lcd_setCursor(1, 1);
     lcd_printStr(str2);
 
     led(2);
@@ -99,8 +99,8 @@ int main(int argc, char** argv) {
 //        int accel = ADXL345_getZ();
 //        lcd_setCursor(0, 1);
 //        lcd_print(accel, 10);
-//
-//        __delay_ms(500);
+
+        __delay_ms(500);
     }
 
     return (EXIT_SUCCESS);
