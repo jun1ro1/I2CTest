@@ -128,11 +128,9 @@ void lcd_noDisplay(void) {
 }
 
 void lcd_print(const int data, const int base) {
-    char buf[ 10 ] = "*********";
+    char buf[ 17 ] = "****************"; // 16bits + EOS
     itoa(buf, data, base);
-    for (unsigned int i = 0; i < sizeof(buf); i++) {
-        lcd_write(buf[ i ]);
-    }
+    lcd_printStr(buf);
 }
 
 void lcd_printStr(const char *str) {

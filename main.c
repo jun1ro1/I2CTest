@@ -73,16 +73,16 @@ int main(int argc, char** argv) {
     ANSELA = 0; // all registers are digital
     TRISA  = 0; // all registers are output
     
-    led(1);   
+//    led(1);   
     i2c_begin();
     
     led(2);
     lcd_begin(8, 2);    
 
-    led(3);
+//    led(3);
     ADXL345_begin();
        
-    led(4);
+//    led(4);
 
     const char str1[] = "Hello";
     const char str2[] = "World";

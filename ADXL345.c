@@ -4,6 +4,11 @@
 #include "i2c.h"
 #include "ADXL345.h"
 
+// for DEBUG
+#include "lcd.h"
+extern void led(const int);
+
+
 void ADXL345_begin( void ) {
   i2c_begin();
   ADXL345_writeRegister( ADXL345_REG_DATA_FORMAT,
@@ -15,6 +20,14 @@ void ADXL345_begin( void ) {
   
   uint8_t id = ADXL345_readRegister( ADXL345_REG_DEVID );
   
+  char str[] = "ID=";
+  lcd_clear();
+  lcd_home();
+  lcd_printStr(str);
+  lcd_print(id, 16);
+  led(3);
+  lcd_clear();
+  lcd_home();
 }
 
 void ADXL345_writeRegister( uint8_t reg, uint8_t data ) {
