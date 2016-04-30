@@ -15,7 +15,7 @@ extern "C" {
 #include "define.h"
 #include <stdint.h>
 
-#define ADXL345_I2C_ADDRESS         0x1C
+#define ADXL345_I2C_ADDRESS         0x53
 
 #define ADXL345_REG_DEVID           0x00
 #define ADXL345_REG_THRESH_TAP      0x1D
