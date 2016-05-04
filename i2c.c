@@ -6,18 +6,18 @@
 
 static uint8_t _i2c_initialized = 0;
 
-extern void led(const int);
+// extern void led(const int);
 
 void i2c_begin(void) {
     if (!_i2c_initialized) {
-        LATA    |=  0x06; // RA1(SCL), RA2(SDA) : default higth
-        TRISA   |=  0x06; // RA1(SCL), RA2(SDA) : input
-        ANSELA  &= ~0x06; // RA1(SCL), RA2(SDA) : digital I/O
+        LATA |= 0x06; // RA1(SCL), RA2(SDA) : default higth
+        TRISA |= 0x06; // RA1(SCL), RA2(SDA) : input
+        ANSELA &= ~0x06; // RA1(SCL), RA2(SDA) : digital I/O
 
-        SSP1STAT =    0; // clear SSP1STAT
+        SSP1STAT = 0; // clear SSP1STAT
         SSP1CON1 = 0x28; // SSP1EN : Enable SDA, SCL; SSP1M : 0b1000 I2C master mode
-        SSP1CON2 =    0; // ACKEN, RCEN, PEN, RSEN, SEN : 0
-        SSP1ADD  = 0x13; // SCK clock 100kHz when CPU clock 8MHz
+        SSP1CON2 = 0; // ACKEN, RCEN, PEN, RSEN, SEN : 0
+        SSP1ADD = 0x13; // SCK clock 100kHz when CPU clock 8MHz
         _i2c_initialized = 1;
     }
 }
@@ -26,18 +26,18 @@ void i2c_wait_idle(void) {
     // SSP1CON2.ACKEN RCEN PEN RSEN SEN
 #ifndef DEBUG    
     while ((SSP1CON2 & 0x1F) || (SSP1STATbits.R_nW));
-//    led(2);
+    //    led(2);
 #endif
 }
 
 void i2c_write(const uint8_t data) {
     SSP1BUF = data;
-//    led(1);
+    //    led(1);
     while (SSP1STATbits.BF); // wait until Buffer Full
-//    while (SSP1CON2bits.ACKSTAT); // wait for ACK received
-//    led(2);
+    //    while (SSP1CON2bits.ACKSTAT); // wait for ACK received
+    //    led(2);
     i2c_wait_idle();
-//    led(2);
+    //    led(2);
 }
 
 uint8_t i2c_read(const bool nack) {
@@ -70,12 +70,12 @@ void i2c_begin_transmission(const uint8_t address, const bool restart) {
 }
 
 void i2c_end_transmission(void) {
-//    led(3);
+    //    led(3);
     SSP1CON2bits.PEN = 1; // send stop condition
 #ifndef DEBUG
     while (SSP1CON2bits.PEN); // wait to send start condition
 #endif
-//    led(4);
+    //    led(4);
 }
 
 void i2c_begin_request(const uint8_t address, const bool restart) {
@@ -92,11 +92,11 @@ void i2c_begin_request(const uint8_t address, const bool restart) {
 #endif
     }
 
-// #pragma warning push
+    // #pragma warning push
 #pragma warning disable 752
     i2c_write(address << 1 | 0x01); // read mode
 #pragma warning enable  752
-// #pragma warning pop
+    // #pragma warning pop
 }
 
 void i2c_end_request(void) {

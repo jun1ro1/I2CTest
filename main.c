@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   main.c
  * Author: jun1ro1
  *
@@ -11,7 +11,7 @@
 #include <stdint.h>
 
 /*
- * 
+ *
  */
 
 // PIC12F1822 Configuration Bit Settings
@@ -57,31 +57,33 @@
 #include "lcd.h"
 #include "ADXL345.h"
 
-void led(const int count) {
+/* void led(const int count) { */
+/*     for (int i = 0; i < count; i++) { */
+/*         RA4 = 1; // LED on */
+/*         __delay_ms(150); */
+/*         RA4 = 0; // LED off */
+/*         __delay_ms(150); */
+/*     } */
+/*     __delay_ms(150); */
+/* } */
 
-    for (int i = 0; i < count; i++) {
-        RA4 = 1; // LED on
-        __delay_ms(150);
-        RA4 = 0; // LED off
-        __delay_ms(150);
-    }
-    __delay_ms(150);
-}
+
+static volatile unsigned long _ticks = 0;
 
 int main(int argc, char** argv) {
     OSCCON = 0b01110010; // clock 8MHz internal clock
     ANSELA = 0; // all registers are digital
     TRISA  = 0; // all registers are output
-    
-//    led(1);   
+
+//    led(1);
     i2c_begin();
-    
-    led(2);
-    lcd_begin(8, 2);    
+
+    //    led(2);
+    lcd_begin(8, 2);
 
 //    led(3);
     ADXL345_begin();
-       
+
 //    led(4);
 
     const char str1[] = "Hello";
@@ -89,30 +91,53 @@ int main(int argc, char** argv) {
 
 //    lcd_setContrast( 70 );
 //      lcd_display();
-    
+
     lcd_home();
     lcd_setCursor(0, 0);
     lcd_printStr(str1);
     lcd_setCursor(1, 1);
     lcd_printStr(str2);
 
-    led(5);
-    
+    //    led(5);
+
     __delay_ms(500);
+
+    // timer1 interrupt
+    T1CON = 0x8d;
+    TMR1H = 0xC0;
+    TMR1L = 0;
+
+    PIE1bits.TMR1IE = 1;
+    INTCONbits.PEIE = 1;
+    INTCONbits.GIE  = 1;
 
     while (1) {
         lcd_clear();
         lcd_home();
 
-        const char label[] = "Z-Axis";
+        const char label[] = "Z=";
         lcd_printStr(label);
         int accel = ADXL345_getZ();
-        lcd_setCursor(0, 1);
         lcd_print(accel, 10);
 
-        __delay_ms(500);
-        led(1);
+        lcd_setCursor(0,1);
+        lcd_print(_ticks, 10);
+
+        SLEEP();
+        NOP();
+
+        //        __delay_ms(500);
+        //        led(1);
     }
 
     return (EXIT_SUCCESS);
+}
+
+
+void interrupt isr( void ) {
+  if ( PIR1bits.TMR1IF ) {
+    PIR1bits.TMR1IF = 0;
+    TMR1H = 0xc0;
+    _ticks++;
+  }
 }

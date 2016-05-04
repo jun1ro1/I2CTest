@@ -6,18 +6,11 @@
 
 // for DEBUG
 #include "lcd.h"
-extern void led(const int);
+/// extern void led(const int);
 
 
 void ADXL345_begin( void ) {
   i2c_begin();
-  ADXL345_writeRegister( ADXL345_REG_DATA_FORMAT,
-                         ADXL345_REG_DATA_FORMAT_RANGE_2G ); // 0x31 <- 00:2G
-  ADXL345_writeRegister( ADXL345_REG_FIFO_CTL, 0 ); // bypass mode
-
-  // start to measure
-  ADXL345_writeRegister( ADXL345_REG_POWER_CTL, ADXL345_REG_POWER_CTL_MEASURE );
-  
   uint8_t id = ADXL345_readRegister( ADXL345_REG_DEVID );
   
   char str[] = "ID=";
@@ -25,9 +18,16 @@ void ADXL345_begin( void ) {
   lcd_home();
   lcd_printStr(str);
   lcd_print(id, 16);
-  led(3);
+  // led(3);
   lcd_clear();
   lcd_home();
+
+  ADXL345_writeRegister( ADXL345_REG_DATA_FORMAT,
+                         ADXL345_REG_DATA_FORMAT_RANGE_2G ); // 0x31 <- 00:2G
+  ADXL345_writeRegister( ADXL345_REG_FIFO_CTL, 0 ); // bypass mode
+
+  // start to measure
+  ADXL345_writeRegister( ADXL345_REG_POWER_CTL, ADXL345_REG_POWER_CTL_MEASURE );
 }
 
 void ADXL345_writeRegister( uint8_t reg, uint8_t data ) {
