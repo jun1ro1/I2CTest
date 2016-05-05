@@ -68,7 +68,39 @@
 /* } */
 
 
-static volatile unsigned long _ticks = 0;
+static volatile long _ticks = 0;
+
+long ticks_time( void ) {
+  return _ticks >> 1;
+}
+
+// --------------------------------------------------
+
+typedef struct ElapsedTimer {
+  long _origin;
+}  ElapsedTimer_t;
+
+void ElapsedTimer_create( ElapsedTimer_t *timer ) {
+  timer->_origin = 0;
+}
+
+void ElapsedTimer_start( ElapsedTimer_t *timer ) {
+  timer->_origin = ticks_time();
+}
+
+void ElapsedTimer_stop( ElapsedTimer_t *timer ){
+  timer->_origin = 0;
+}
+
+long ElapsedTimer_elapsed( ElapsedTimer_t *timer ){
+  if (timer->_origin ==0) {
+    return 0;
+  }
+  else {
+    return ticks_time() - timer->_origin;
+  }
+}
+
 
 int main(int argc, char** argv) {
     OSCCON = 0b01110010; // clock 8MHz internal clock
@@ -100,6 +132,9 @@ int main(int argc, char** argv) {
 
     //    led(5);
 
+    ElapsedTimer_t timer;
+    ElapsedTimer_create( &timer );
+    
     __delay_ms(500);
 
     // timer1 interrupt
@@ -112,16 +147,45 @@ int main(int argc, char** argv) {
     INTCONbits.GIE  = 1;
 
     while (1) {
-        lcd_clear();
-        lcd_home();
+        int x = ADXL345_getX();
+        int y = ADXL345_getY();
+        bool display = true;
+        ElapsedTimer_start(&timer);
+        
+        if ((x > 100) || (x < -100) || (y > 100) || (y < -100)) {
+            display = true;
+            lcd_display();
+            ElapsedTimer_start(&timer);
+        } else if (ElapsedTimer_elapsed(&timer) > 15) {
+            display = false;
+            lcd_noDisplay();
+            ElapsedTimer_stop(&timer);
+        } else if (display) {
+            lcd_home();
+            lcd_clear();
+            const char label[] = "Z=";
+            lcd_printStr(label);
+            int accel = ADXL345_getZ();
+            lcd_print(accel, 10);
 
-        const char label[] = "Z=";
-        lcd_printStr(label);
-        int accel = ADXL345_getZ();
-        lcd_print(accel, 10);
+            lcd_setCursor(0, 1);
+            long time = ticks_time();
+            lcd_print(time, 10);
 
-        lcd_setCursor(0,1);
-        lcd_print(_ticks, 10);
+        }
+
+
+        //        lcd_clear();
+        //        lcd_home();
+        //
+        //        const char label[] = "Z=";
+        //        lcd_printStr(label);
+        //        int accel = ADXL345_getZ();
+        //        lcd_print(accel, 10);
+        //
+        //        lcd_setCursor(0,1);
+        //        long time = ticks_time();
+        //        lcd_print( time, 10);
 
         SLEEP();
         NOP();
@@ -141,3 +205,34 @@ void interrupt isr( void ) {
     _ticks++;
   }
 }
+
+// --------------------------------------------------
+
+
+typedef enum {
+    tmMillis,  tmSecond, tmMinute, tmHour, tmWday, tmDay,tmMonth, tmYear, tmNbrFields
+} tmByteFields;
+
+/*
+tmByteFields roundTime( const long time, uint8_t &val ) {
+    if (time >= (48UL * 60UL * 60UL)) {
+        // rather than 2 days
+        val = time / (24UL * 60UL * 60UL); // seconds to days
+        return tmDay;
+    }
+    else if (time >= 60 * 60) {
+        val = time / ( 60 * 60 );    // seconds to hours
+        return tmHour;
+    }
+    else if (time >= 60) {
+        val = time / 60;             // seconds to minutes
+        return tmMinute;
+    }
+    else {
+        val = time;
+        return tmSecond;
+    }
+}
+
+*/
+
