@@ -68,20 +68,21 @@
 /* } */
 
 
+// --------------------------------------------------
+
+#include <time.h>
 static volatile long _ticks = 0;
 
-long ticks_time( void ) {
+time_t ticks_time( void ) {
   return _ticks >> 1;
 }
 
-// --------------------------------------------------
-
 typedef struct ElapsedTimer {
-  long _origin;
+  time_t _origin;
 }  ElapsedTimer_t;
 
 void ElapsedTimer_create( ElapsedTimer_t *timer ) {
-  timer->_origin = 0;
+  timer->_origin = (time_t)0;
 }
 
 void ElapsedTimer_start( ElapsedTimer_t *timer ) {
@@ -89,18 +90,45 @@ void ElapsedTimer_start( ElapsedTimer_t *timer ) {
 }
 
 void ElapsedTimer_stop( ElapsedTimer_t *timer ){
-  timer->_origin = 0;
+  timer->_origin = (time_t)0;
 }
 
 long ElapsedTimer_elapsed( ElapsedTimer_t *timer ){
-  if (timer->_origin ==0) {
-    return 0;
+  if (timer->_origin ==(time_t)0) {
+    return (time_t)0;
   }
   else {
     return ticks_time() - timer->_origin;
   }
 }
 
+
+typedef enum {
+    tmMillis,  tmSecond, tmMinute, tmHour, tmWday, tmDay,tmMonth, tmYear, tmNbrFields
+} tmByteFields;
+
+
+tmByteFields roundTime( const long time, uint8_t *val ) {
+    if (time >= (48UL * 60UL * 60UL)) {
+        // rather than 2 days
+        *val = time / (24UL * 60UL * 60UL); // seconds to days
+        return tmDay;
+    }
+    else if (time >= 60 * 60) {
+        *val = time / ( 60 * 60 );    // seconds to hours
+        return tmHour;
+    }
+    else if (time >= 60) {
+        *val = time / 60;             // seconds to minutes
+        return tmMinute;
+    }
+    else {
+        *val = time;
+        return tmSecond;
+    }
+}
+
+// --------------------------------------------------
 
 int main(int argc, char** argv) {
     OSCCON = 0b01110010; // clock 8MHz internal clock
@@ -134,7 +162,7 @@ int main(int argc, char** argv) {
 
     ElapsedTimer_t timer;
     ElapsedTimer_create( &timer );
-    
+
     __delay_ms(500);
 
     // timer1 interrupt
@@ -153,7 +181,7 @@ int main(int argc, char** argv) {
     while (1) {
         int x = ADXL345_getX();
         int y = ADXL345_getY();
-        
+
         if ((x > 100) || (x < -100) || (y > 100) || (y < -100)) {
             display = true;
             lcd_display();
@@ -165,14 +193,35 @@ int main(int argc, char** argv) {
         } else if (display) {
             lcd_home();
             lcd_clear();
-            const char label[] = "Z=";
-            lcd_printStr(label);
-            int accel = ADXL345_getZ();
-            lcd_print(accel, 10);
+
+            lcd_printStr("Z=");
+            lcd_print(ADXL345_getZ(), 10);
 
             lcd_setCursor(0, 1);
-            long time = ticks_time();
-            lcd_print(time, 10);
+
+            uint8_t        val = 0;
+            tmByteFields field = roundTime( ticks_time(), &val );
+
+            switch (field) {
+            case tmSecond:  // Second
+              lcd_printStr("S:");
+              break;
+            case tmMinute:  // minute
+              lcd_printStr("M:");
+              break;
+            case tmHour:    // hour
+              lcd_printStr("H:");
+              break;
+            case tmDay:     // day
+              lcd_printStr("D:");
+              break;
+            default:
+              break;
+            }
+            lcd_print(val, 10);
+
+            //  long t = ticks_time();
+            //  lcd_print(t, 10);
 
         }
 
@@ -192,33 +241,6 @@ void interrupt isr( void ) {
   }
 }
 
-// --------------------------------------------------
 
 
-typedef enum {
-    tmMillis,  tmSecond, tmMinute, tmHour, tmWday, tmDay,tmMonth, tmYear, tmNbrFields
-} tmByteFields;
-
-/*
-tmByteFields roundTime( const long time, uint8_t &val ) {
-    if (time >= (48UL * 60UL * 60UL)) {
-        // rather than 2 days
-        val = time / (24UL * 60UL * 60UL); // seconds to days
-        return tmDay;
-    }
-    else if (time >= 60 * 60) {
-        val = time / ( 60 * 60 );    // seconds to hours
-        return tmHour;
-    }
-    else if (time >= 60) {
-        val = time / 60;             // seconds to minutes
-        return tmMinute;
-    }
-    else {
-        val = time;
-        return tmSecond;
-    }
-}
-
-*/
 
