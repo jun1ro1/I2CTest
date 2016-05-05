@@ -146,11 +146,13 @@ int main(int argc, char** argv) {
     INTCONbits.PEIE = 1;
     INTCONbits.GIE  = 1;
 
+    bool display = true;
+    lcd_display();
+    ElapsedTimer_start(&timer);
+
     while (1) {
         int x = ADXL345_getX();
         int y = ADXL345_getY();
-        bool display = true;
-        ElapsedTimer_start(&timer);
         
         if ((x > 100) || (x < -100) || (y > 100) || (y < -100)) {
             display = true;
@@ -174,25 +176,9 @@ int main(int argc, char** argv) {
 
         }
 
-
-        //        lcd_clear();
-        //        lcd_home();
-        //
-        //        const char label[] = "Z=";
-        //        lcd_printStr(label);
-        //        int accel = ADXL345_getZ();
-        //        lcd_print(accel, 10);
-        //
-        //        lcd_setCursor(0,1);
-        //        long time = ticks_time();
-        //        lcd_print( time, 10);
-
         SLEEP();
         NOP();
-
-        //        __delay_ms(500);
-        //        led(1);
-    }
+   }
 
     return (EXIT_SUCCESS);
 }
